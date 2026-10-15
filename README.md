@@ -2,6 +2,25 @@
 
 Traceframe is a local research prototype for capturing gameplay video, processing a highlight, and checking an embedded provenance receipt. It does not prove that a human or enrolled device made the recording.
 
+## Repository layout
+
+| Path | Role |
+| --- | --- |
+| `server.py` | The local API: routes, accounts, request handling, receipt issuance and audit |
+| `run_demo.py` | One-shot synthetic pipeline demo; also regenerates the `site/` research pack |
+| `config.py` | Environment-driven settings, loaded from `.env` |
+| `ffmpeg_engine.py`, `video_utils.py` | FFmpeg/FFprobe wrappers for cutting, encoding and probing |
+| `highlight_analyzer.py` | Deterministic activity-window ranking; not an event classifier |
+| `gemini_orchestrator.py` | Optional Gemini crop provider, used only when `CROP_PROVIDER=gemini` |
+| `aws_archive.py` | Optional S3 archive for processed clips and receipts |
+| `verify_novel_pipeline.py` | End-to-end pipeline check |
+| `capture.js`, `provenance.js` | Browser-side keypair, chunk hashing and manifest signing |
+| `index.html`, `renderer.js`, `styles.css` | Capture and verification UI |
+| `main.js`, `preload.js` | Optional Electron desktop shell |
+| `research/build_demo_pack.py` | Generates the dataset, charts and report in `site/` |
+| `site/` | Static research landing page and generated pack |
+| `examples/provenance/` | Receipts from local demo runs; see below |
+
 ## Run the demo
 
 Requirements: Python 3.10+, FFmpeg and FFprobe on PATH, and a current browser. Node.js is needed only for the optional Electron desktop shell.
@@ -53,6 +72,14 @@ When enabled and configured, each successful `/process-clip` operation uploads b
 The API checks the input file hash, the client-supplied signed manifest, and its linked chain before processing. The output certificate is signed with a persistent local server key. The audit endpoint checks that signature against the server's own key and recomputes a SHA-256 digest of the MP4 with the embedded certificate JSON bytes masked. This covers the remaining container bytes, including the encoded media and trailing bytes.
 
 The client signing key is ephemeral and is not enrolled to a person or device. The client supplies telemetry and chunk boundaries; the server recomputes each signed chunk hash against the uploaded bytes, but chunk timing is not tied to decoded frames. A valid receipt therefore proves that the bytes and receipt match the current local server's issuance; it does not prove capture identity, human play, or real-world truth. Video uploads are capped at 512 MiB.
+
+## Example provenance receipts
+
+`examples/provenance/` holds 22 JSON receipts written by local demo runs. They show the real shape of a certificate: crop geometry and window, certificate version, the canonical SHA-256 of the client manifest, edge and server public keys and signatures, the source video digest, temporal chain length and Merkle root.
+
+These are format examples, not independently verifiable artifacts. A receipt only means something next to the exact MP4 it certifies, and those clips are not included: they are generated locally by `run_demo.py`, and the source test footage is third-party Creative Commons material that we do not redistribute. To produce receipts you can actually verify, run the demo and audit the output under `outputs/`.
+
+The public keys here are ephemeral per-run signing keys from a throwaway local instance. They attest nothing about this repository or its authors.
 
 ## Share with devices on the same Wi-Fi
 
