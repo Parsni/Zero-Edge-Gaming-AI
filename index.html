@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traceframe — Media Evidence Capture & Audit</title>
+  <link rel="stylesheet" href="styles.css?v=2.11.0">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="app-container">
+    <!-- Top Header Navigation -->
+    <header class="navbar glass-card">
+      <div class="brand">
+        <div class="logo-shield">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <div class="brand-text">
+          <h1>TRACEFRAME <span class="version-badge">MEDIA EVIDENCE</span></h1>
+          <p class="subtitle">Capture a clip, sign its record, and check whether it changed</p>
+        </div>
+      </div>
+
+      <div class="system-status">
+        <div class="status-pill" id="serverStatus">
+          <span class="status-dot"></span>
+          <span class="status-label">FastAPI Gate: Checking...</span>
+        </div>
+        <div class="status-pill hotkey-badge">
+          <span class="key-tag">F9</span>
+          <span>Mark & Verify</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="panel glass-card" style="margin:24px 0;padding:24px;">
+      <div class="panel-header"><h2>Verify, recommend, and preserve</h2><span class="badge badge-outline">1 INTEGRITY → 2 RECOMMEND → 3 PROVE</span></div>
+      <p>Traceframe first compares the browser and server SHA-256 hashes. Only after they match does it rank a 10-second window using visual motion and audio peaks. This checks upload integrity; without a prior signed receipt it cannot establish who created the source video. Full-frame H.264 lossless encoding preserves decoded pixels for supported formats, but output files can be larger.</p>
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:18px 0;">
+        <input id="sourceVideoFile" type="file" accept="video/*" />
+        <label>Or load a test clip <select id="sampleClipSelect"><option value="">Choose gameplay sample</option><option value="tPqBurrV3ZM.mp4">BGMI · No Copyright Gameplay #1</option><option value="k_DS4IHjr6w.mp4">BGMI / PUBG Mobile · No Copyright Gameplay #2</option><option value="Ld7U9u5daBU.mp4">Valorant · No Copyright Gameplay #1</option><option value="tDSaNPhhOPw.mp4">Valorant · No Copyright Gameplay #2</option><option value="Yuzl_DMSvhk.mp4">Valorant · Batty's Free Footage</option></select></label>
+        <button id="loadSampleClip" class="btn btn-secondary" type="button">Load sample</button>
+        <a href="/test-videos/ATTRIBUTION.csv" target="_blank" rel="noopener">Source credits & hashes</a>
+        <label>Start (seconds) <input id="rangeStart" type="number" min="0" step="0.1" value="0" style="width:110px"></label>
+        <label>End (seconds) <input id="rangeEnd" type="number" min="0.1" step="0.1" value="5" style="width:110px"></label>
+        <span id="sourceVideoInfo">No video selected</span>
+        <button id="processSelectedVideo" class="btn btn-accent" disabled>Create Suggested Clip</button>
+      </div>
+      <p id="integrityReport" role="status">Step 1/3 · Select a video to begin its cryptographic hash check.</p>
+      <p id="activitySuggestion" role="status">The app will recommend a 10-second window after you load a video.</p>
+      <video id="sourceVideoPreview" controls playsinline style="width:min(100%,900px);max-height:420px;background:#05070c;display:none"></video>
+      <p id="selectedVideoStatus" role="status"></p>
+    </section>
+
+    <!-- Controls Row -->
+    <div class="toolbar glass-card">
+      <div class="tool-group">
+        <button id="screenShareBtn" class="btn btn-primary">
+          <span class="btn-icon">🖥️</span> Capture Display / Window
+        </button>
+        <button id="simStreamBtn" class="btn btn-secondary">
+          <span class="btn-icon">🎮</span> Run Synthetic Demo
+        </button>
+        <button id="stopCaptureBtn" class="btn btn-secondary" style="display:none;">
+          <span class="btn-icon">⏹</span> Stop Stream
+        </button>
+      </div>
+
+      <div class="tool-actions">
+        <button id="triggerHighlightBtn" class="btn btn-accent" disabled>
+          <span class="btn-icon">⚡</span> Mark Event & Create Clip (F9)
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Grid Workspace -->
+    <main class="grid-workspace">
+      <!-- Live Video Monitor -->
+      <section class="panel glass-card monitor-panel">
+        <div class="panel-header">
+          <h2><span class="pulse-icon">●</span> Capture Buffer</h2>
+          <div class="buffer-indicator" id="bufferStats">Buffer: 0s / 15s (0 Chunks)</div>
+        </div>
+        <div class="video-container">
+          <video id="previewVideo" autoplay playsinline muted></video>
+          <div id="noStreamOverlay" class="video-placeholder">
+            <div class="placeholder-content">
+              <svg viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1.5">
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
+                <line x1="8" y1="21" x2="16" y2="21"/>
+                <line x1="12" y1="17" x2="12" y2="21"/>
+              </svg>
+              <p>Choose <strong>Capture Display</strong> for real screen video or <strong>Run Synthetic Demo</strong> for test footage</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Browser-reported activity and frame timing; these do not identify a person. -->
+        <div class="entropy-dashboard">
+          <div class="entropy-card">
+            <div class="entropy-title">Pointer movement variance</div>
+            <div class="entropy-value" id="mouseVarianceVal">0.0000</div>
+          </div>
+          <div class="entropy-card">
+            <div class="entropy-title">Key events / second</div>
+            <div class="entropy-value" id="keystrokeVal">0 / sec</div>
+          </div>
+          <div class="entropy-card">
+            <div class="entropy-title">Frame interval variance (ms²)</div>
+            <div class="entropy-value" id="jitterVal">0.0000</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Temporal Merkle Visualizer -->
+      <section class="panel glass-card merkle-panel">
+        <div class="panel-header">
+          <h2>Signed Input Chunk Chain</h2>
+          <span class="badge" id="merkleRootBadge">Root: None</span>
+        </div>
+        <div class="merkle-chain-stream" id="merkleChainStream">
+          <div class="empty-chain-hint">Awaiting video chunks to assemble Merkle chain...</div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Certificate & Forensic Audit Output -->
+    <section class="panel glass-card certificate-panel" id="resultPanel">
+      <div class="panel-header">
+          <h2>Processed Clip & Signed Receipt</h2>
+          <span class="badge badge-success" id="authBadge">Receipt issued</span>
+      </div>
+
+      <div class="results-grid">
+        <div class="result-video-box">
+          <h3>Processed evidence copy (portrait format)</h3>
+          <video id="outputVideo" controls playsinline></video>
+          <div class="video-actions">
+            <a id="downloadLink" href="#" class="btn btn-secondary" download>⬇ Download Provenance MP4</a>
+          </div>
+        </div>
+
+        <div class="result-data-box">
+          <h3>Cryptographic Attestation Receipt</h3>
+          <pre><code id="certJsonDisplay">// Certificate payload will appear here...</code></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Forensic File Drop / Auditor -->
+    <section class="panel glass-card forensic-panel">
+      <div class="panel-header">
+          <h2>Video Receipt & Integrity Check</h2>
+        <span class="badge badge-outline">POST /verify-clip</span>
+      </div>
+      <div class="drop-zone" id="forensicDropZone">
+        <input type="file" id="forensicFileInput" accept="video/mp4" style="display:none;" />
+        <p>Choose a processed <strong>.mp4</strong> to check its Traceframe signed receipt and file integrity. Raw source videos, including the bundled test clips, have no Traceframe receipt yet: they should pass the upload SHA-256 check above, but they are expected to show “no signed receipt” here. A receipt pass does not prove who recorded the video or that it is genuine gameplay.</p>
+        <button class="btn-text" id="browseForensicBtn">Choose video</button>
+        <div id="forensicAuditResult" class="forensic-result-card"></div>
+      </div>
+    </section>
+  </div>
+
+  <script src="capture.js?v=2.11.0"></script>
+  <script src="renderer.js?v=2.11.0"></script>
+</body>
+</html>

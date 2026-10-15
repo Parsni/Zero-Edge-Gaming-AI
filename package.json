@@ -1,0 +1,12 @@
+{
+  "name": "traceframe-media-evidence",
+  "version": "2.6.0",
+  "private": true,
+  "description": "Local media evidence capture and integrity audit prototype",
+  "main": "main.js",
+  "scripts": {
+    "desktop:setup": "npm install --no-save electron@44.7.0",
+    "desktop": "electron ."
+  },
+  "license": "Apache-2.0"
+}

@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101210">
+  <meta name="description" content="Traceframe verifies upload hashes, ranks active video moments, and creates signed evidence clips.">
+  <title>Traceframe — Media Evidence Capture & Audit</title>
+  <link rel="stylesheet" href="/site/styles.css?v=2.11.0">
+</head>
+<body>
+  <header class="nav wrap">
+    <a class="wordmark" href="#" aria-label="Traceframe home"><span class="mark">t<span>.</span></span> traceframe</a>
+    <nav><a href="#system">System</a><a href="#demo-lab">Demo Lab</a><a href="#evidence">Evidence</a><a href="#auditor">Auditor</a><a href="/capture/">Capture</a></nav>
+    <a class="nav-cta" href="/capture/">Run the workflow <span>↗</span></a>
+  </header>
+
+  <main>
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <div class="eyebrow"><i></i> ESPORTS MEDIA EVIDENCE LAB <span>·</span> RESEARCH BUILD</div>
+        <h1>Capture the file.<br>Check its <em>evidence.</em></h1>
+        <p class="lede">Sign in, upload a video, pass the browser-to-server SHA-256 check, then let Traceframe recommend an active 10-second window. It preserves decoded full-frame video pixels for supported formats and attaches a signed receipt. The activity ranker does not recognize kills or clutches.</p>
+        <div class="hero-actions"><a class="button primary" href="/capture/">Open evidence capture <b>↗</b></a><a class="text-link" href="#demo-lab">Inspect the test run <span>↓</span></a></div>
+        <div class="statusline"><span class="status-dot" id="health-dot"></span><span id="health-text">Checking local runtime…</span><span class="mono" id="health-time"></span></div>
+      </div>
+      <div class="hero-art" aria-label="Illustration of a video moving through signed processing stages">
+        <div class="art-top"><span>TRACE / 0007</span><span>LOCAL DEMO</span></div>
+        <div class="screen-frame"><div class="screen-grid"></div><div class="scene"><div class="sun"></div><div class="mountain m1"></div><div class="mountain m2"></div><div class="crosshair">+</div></div><div class="frame-label">FRAME 0042 <span>00:00:02.400</span></div></div>
+        <div class="scanline"></div><div class="stamp"><span>✓</span> SIGNED<br><small>RECEIPT ATTACHED</small></div>
+        <div class="art-foot"><span>EDGE INPUT</span><span class="route-line"></span><span>MP4 OUTPUT</span></div>
+      </div>
+      <div class="hero-index"><span>01 / 04</span><span>TRUST, MADE VISIBLE</span></div>
+    </section>
+
+    <section class="proof-strip wrap" id="evidence">
+      <div class="strip-heading"><span class="eyebrow">CURRENT REPRODUCED RUN</span><span class="strip-note">Generated test clip · synthetic capture mode</span></div>
+      <div class="metrics">
+        <article><b id="proof-links">—</b><span>signed input chunks</span></article>
+        <article><b id="proof-resolution">—</b><span>processed MP4 · H.264</span></article>
+        <article><b><span id="proof-duration">—</span><span class="unit">s</span></b><span>output duration</span></article>
+        <article><b id="proof-size">—</b><span>verified demo file</span></article>
+      </div>
+      <div class="proof-foot"><span><i class="tiny-check">✓</i> FFmpeg-generated test video; confirms the processing and integrity-audit path only.</span><span>Not evidence of real gameplay or device identity.</span></div>
+    </section>
+
+    <section class="demo-lab" id="demo-lab">
+      <div class="wrap">
+        <div class="lab-heading"><div><div class="eyebrow">REPRODUCIBLE INTEGRITY EXPERIMENT · SYNTHETIC INPUT</div><h2>Inspect the receipt.<br><em>Test file changes.</em></h2></div><p>The sample completed the signed-input-manifest, media-processing, receipt, and audit path. The tamper control changes one byte in a copy and submits it to the verifier.</p></div>
+        <div class="lab-grid">
+          <article class="lab-video-card"><div class="lab-card-top"><span>VERIFIED OUTPUT · H.264</span><span class="live-tag"><i class="online"></i> LIVE AUDITOR</span></div><video id="demo-video" controls playsinline preload="metadata"></video><div class="lab-buttons"><button id="verify-demo" class="button primary">Verify original clip</button><button id="tamper-demo" class="button outline">Run one-byte tamper test</button><a id="download-demo" class="button outline" download>Download MP4</a></div><div id="demo-result" class="demo-result" aria-live="polite">Loading the signed sample…</div></article>
+          <aside class="lab-evidence"><div class="eyebrow">RUN RECEIPT</div><div class="lab-stat-grid"><div><b id="demo-resolution">—</b><span>output frame</span></div><div><b id="demo-duration">—</b><span>seconds</span></div><div><b id="demo-size">—</b><span>file size</span></div><div><b id="demo-links">—</b><span>manifest links</span></div><div><b id="demo-crop-method">—</b><span>crop method</span></div></div><div class="digest-label">OUTPUT CONTAINER SHA-256</div><code id="demo-digest">Loading…</code><div class="lab-downloads"><a href="/site/architecture.svg" download>↓ Architecture graphic</a><a href="/site/research_chart.svg" download>↓ ML experiment chart</a><a href="/site/demo_dataset.csv" download>↓ CSV dataset</a><a href="/site/research_report.md" download>↓ Research report</a></div><a class="button primary lab-capture" href="/capture/">Capture and process your own clip <b>↗</b></a></aside>
+        </div>
+        <figure class="diagram-card"><img src="/site/architecture.svg" alt="Traceframe edge capture, local motion crop, media processing, then receipt audit architecture diagram"><figcaption>Architecture in the current build. Blockchain publication and hardware attestation remain proposed work.</figcaption></figure>
+        <div class="ml-panel"><div><div class="eyebrow">SMALL ML BASELINE · CONTROLLED BYTE-FLIP TRIALS</div><h3>Metadata cannot see a changed byte.</h3><p>A tiny logistic-regression model trained on dimensions, duration, file size and bitrate was compared with the cryptographic audit. Each clean/tampered pair has identical metadata; the report shows the measured holdout result. This is not a deepfake detector.</p></div><img src="/site/research_chart.svg" alt="Chart comparing metadata-only logistic regression with cryptographic audit accuracy"></div>
+        <div class="idea-preserved"><span>THE RESEARCH DIRECTION</span><p><b>Edge capture</b> → <b>operator-marked event segment</b> → <b>signed input manifest</b> → <b>transformation receipt</b> → <b>later file-integrity audit</b> for esports media. The activity ranker suggests a moment after the upload hash check; no semantic event detection is implemented. Device identity, frame-bound evidence, deployed AWS storage and a public ledger remain future work.</p></div>
+      </div>
+    </section>
+
+    <section class="system-section" id="system">
+      <div class="wrap">
+        <div class="section-head"><div><div class="eyebrow">THE CURRENT BUILD</div><h2>Capture.<br><em>Sign. Audit.</em></h2></div><p>The client records a short screen stream, hashes chunks, and signs a manifest with an ephemeral key. A local service creates a processed copy and signs a receipt. The audit checks file integrity; it does not identify the recorder or prove the source is gameplay.</p></div>
+        <div class="flow">
+          <article class="flow-card"><div class="flow-num">01 <span>EDGE / ELECTRON</span></div><div class="flow-icon capture-icon">◉</div><h3>Capture & sign</h3><p>Browser capture records mouse, key and frame timing. The client hashes the input and signs its manifest with an ephemeral ECDSA key.</p><div class="flow-foot"><span>INPUT HASH</span><span class="chip">CLIENT KEY · UNBOUND</span></div></article>
+          <div class="flow-arrow">→</div>
+          <article class="flow-card"><div class="flow-num">02 <span>LOCAL API / FFMPEG</span></div><div class="flow-icon crop-icon">⌗</div><h3>Recommend after integrity passes</h3><p>Only after browser/server SHA-256 values match does the activity ranker score a 10-second window. Full-frame H.264 QP 0 preserves decoded pixels for supported formats; output files can be larger.</p><div class="flow-foot"><span>FULL FRAME + AUDIO</span><span class="chip muted">AUTO ACTIVITY RANK</span></div></article>
+          <div class="flow-arrow">→</div>
+          <article class="flow-card"><div class="flow-num">03 <span>RECEIPT / AUDIT</span></div><div class="flow-icon seal-icon">⌑</div><h3>Sign & inspect</h3><p>The output embeds a server-signed certificate. The auditor checks the server installation key and a digest of MP4 bytes with the embedded certificate masked.</p><div class="flow-foot"><span>CONTAINER DIGEST</span><span class="chip">LOCAL SERVER KEY</span></div></article>
+        </div>
+        <div class="boundary aws-boundary"><span class="boundary-mark">AWS</span><p><b>Optional S3 archive + Lambda hook</b><br>When enabled, the runtime stores the processed MP4 and JSON receipt in S3 with SHA-256 metadata. Operators can also invoke an existing Lambda asynchronously with those object references. Both are disabled until configured; AWS retention and access policies remain operator managed.</p><a href="#evidence" id="aws-status">CHECKING ↻</a></div>
+        <div class="boundary"><span class="boundary-mark">!</span><p><b>What this does not prove</b><br>The client key is not tied to a person or device. Input telemetry is client supplied. The server now recomputes signed chunk hashes against uploaded bytes, but their timing is not tied to decoded frames. No blockchain, zero-knowledge proof, serverless deployment, or human-authenticity detection is implemented.</p><a href="#limits">Read the gap register ↘</a></div>
+      </div>
+    </section>
+
+    <section class="auditor-section wrap" id="auditor">
+      <div class="auditor-intro"><div class="eyebrow">RECEIPT AUDITOR</div><h2>Bring the file.<br><em>Check for changes.</em></h2><p>Choose a processed MP4 to send it to this runtime’s <code>/verify-clip</code> endpoint. A pass means the issuing server signature and embedded-container digest validate. It does not establish who recorded the clip or whether it is genuine gameplay.</p><div class="audit-note"><span>01</span><span>MP4 only · verified by the issuing local runtime</span></div></div>
+      <div class="audit-card">
+        <div class="audit-card-head"><span>PROVENANCE AUDITOR</span><span class="live-tag"><i></i> <span id="audit-service">CONNECTING</span></span></div>
+        <label class="drop-zone" id="drop-zone" for="clip-file"><span class="upload-icon">↑</span><strong>Drop a processed MP4 here</strong><span>or <u>choose a file</u> from your device</span><small>MP4 · maximum 512 MiB</small><input id="clip-file" type="file" accept="video/mp4,.mp4"></label>
+        <div id="audit-result" class="audit-result" aria-live="polite"><span class="result-empty">Awaiting file <span>—</span></span></div>
+        <div class="audit-meta"><span>VERIFIER KEY</span><span>SERVER INSTALLATION KEY · PERSISTED LOCALLY</span></div>
+      </div>
+    </section>
+
+    <section class="limits-section" id="limits"><div class="wrap limits-grid"><div><div class="eyebrow">RESEARCH NOTES</div><h2>Interesting claims<br>need <em>evidence.</em></h2><p>Research hypothesis: bind an accepted capture manifest and transformation parameters to the resulting MP4 in a signed receipt that a later auditor can validate.</p></div><div class="register"><div class="register-head"><span>GAP REGISTER</span><span>STATUS</span></div><div class="gap-row"><span><b>Input-to-output integrity</b><small>MP4 container digest and signed source chunks are checked against bytes.</small></span><i class="status-fixed">IMPLEMENTED</i></div><div class="gap-row"><span><b>Static source exposure</b><small>Only the landing page and explicit site assets are served.</small></span><i class="status-fixed">IMPLEMENTED</i></div><div class="gap-row"><span><b>Cross-site browser writes</b><small>Requests from other website origins are rejected.</small></span><i class="status-fixed">IMPLEMENTED</i></div><div class="gap-row"><span><b>Capture identity</b><small>No hardware attestation or enrolled device keys.</small></span><i class="status-open">OPEN</i></div><div class="gap-row"><span><b>Frame-bound temporal proofs</b><small>Chunk hashes cover bytes but do not establish per-frame timing.</small></span><i class="status-open">OPEN</i></div><div class="gap-row"><span><b>Semantic action tracking</b><small>Current crop follows pixel motion; it does not recognize game events or objects.</small></span><i class="status-open">OPEN</i></div></div></div></section>
+  </main>
+  <footer class="footer wrap"><a class="wordmark" href="#"><span class="mark">t<span>.</span></span> traceframe</a><span>MEDIA PROVENANCE RESEARCH PROTOTYPE</span><span>LOCAL RUNTIME · BUILD 02</span></footer>
+  <script src="/site/app.js?v=2.11.0" defer></script>
+</body>
+</html>

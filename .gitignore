@@ -1,0 +1,11 @@
+.server-signing-key.pem
+.env
+outputs/lan-tls/
+.traceframe-auth.sqlite3
+.traceframe-auth.sqlite3-shm
+.traceframe-auth.sqlite3-wal
+venv/
+__pycache__/
+*.pyc
+node_modules/
+outputs/
